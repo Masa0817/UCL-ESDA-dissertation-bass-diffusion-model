@@ -1,1 +1,1 @@
-# UCL-ESDA-dissertation-bass-diffusion-model
+# UCL ESDA dissertation bass diffusion model
