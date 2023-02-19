@@ -1,0 +1,43 @@
+# Estimate the parameters of the Bass model from a vector of adoption counts
+estimate_bass <- function(adoption_counts) {
+  
+  if (length(adoption_counts) < 2) {
+    stop("The input vector must have at least two values.")
+  }
+  
+  # Compute the cumulative adoption counts
+  cumulative_counts <- cumsum(adoption_counts)
+  
+  # Fit a quadratic regression of adoption counts on cumulative counts
+  model <- lm(adoption_counts ~ 1 + cumulative_counts + I(cumulative_counts^2))
+  
+  # Extract the coefficients of the regression
+  intercept <- model$coefficients[1]
+  coef_cumulative <- model$coefficients[2]
+  coef_squared_cumulative <- model$coefficients[3]
+  
+  # Compute the parameters of the Bass model from the regression coefficients
+  M1 <- (-coef_cumulative - sqrt(coef_cumulative^2 - 4*intercept*coef_squared_cumulative)) / (2*coef_squared_cumulative)
+  M2 <- (-coef_cumulative + sqrt(coef_cumulative^2 - 4*intercept*coef_squared_cumulative)) / (2*coef_squared_cumulative)
+  M <- max(M1, M2)
+  
+  p <- intercept / M
+  q <- -coef_squared_cumulative * M
+  
+  # Return the parameters as a named vector
+  bass_params <- c(p, q, M)
+  names(bass_params) <- c("p", "q", "M")
+  
+  return(bass_params)
+}
+
+
+# Estimate the diffusion
+internet<- c(0,0.1,0.2,0.3,0.5,1.0,1.9,4.1,7.4,13.7,21.3,26.8,33.5,56.5,64.8,65.6,70,68.8,75.1,78.4,83.6,
+             85,85.4,87.5,89.8,91.6,92,94.8,90.4,90.7,92.5,94.8) #The internet user from 1990 to 2020
+
+nissan<- c(0, 638, 1310,3029, 6838, 11219, 14718,19624, 24742, 
+           28395, 35930, 44929) # Nissan car registered in the UK from 2010 to 2021
+
+estimate_bass(internet)
+estimate_bass(nissan)
